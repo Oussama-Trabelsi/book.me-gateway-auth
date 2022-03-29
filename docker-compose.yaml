@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    container_name: gateway-auth-mongodb
+    command: mongod --quiet --logpath /dev/null
+    restart: unless-stopped
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - gateway-auth-db:/var/lib/mongodb
+
+  gateway-auth:
+    image: gateway-auth
+    container_name: gateway-auth
+    restart: always
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env.dev
+    links:
+      - gateway-auth-mongodb
+    volumes:
+      - ./:/usr/local/apps/gateway-auth
+      - node_modules:/usr/local/apps/gateway-auth/node_modules
+
+volumes:
+  node_modules:
+  gateway-auth-db:
